@@ -1,7 +1,7 @@
 def menu():
     saldo = 3000
     limite_por_saque = 500
-    limite_por_dia = 3
+    saques_por_dia = 3
     extrato = []
     
     def format_value(value):
@@ -23,18 +23,23 @@ def menu():
         exit()
     
     def option_sacar():
+        nonlocal saques_por_dia
         nonlocal saldo
         nonlocal option
         
         valor = int(input('Digite o valor do saque: '))
-        if valor > saldo:
+        
+        if saques_por_dia <= 0:
+            print(f'Limite de saque ultrapassado. Tente novamente mais tarde.')
+        elif valor > saldo:
             print(f'Não é possivel sacar o valor {format_value(valor)} , pois é maior que o saldo {format_value(saldo)}')
         elif valor > limite_por_saque:
             print(f'Não é possivel sacar o valor {format_value(valor)} , pois é maior que limite por saque / {format_value(limite_por_saque)}')
         else:
             print(f'Sacando {format_value(valor)} de {format_value(saldo)}')
             saldo-=valor
-            extrato.append((menu_keys[option],valor,saldo))
+            saques_por_dia-=1
+            extrato.append((menu_keys[option - 1],valor,saldo))
             option_vizualizar_saldo()
 
     def option_depositar():
@@ -65,5 +70,5 @@ def menu():
             menu_dict[menu_keys[option - 1]]()
 
 if __name__ == '__main__':
-    while  True:
+    while True:
         menu()
