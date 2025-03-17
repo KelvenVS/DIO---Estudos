@@ -1,5 +1,5 @@
 def menu():
-    saldo = 3000
+    saldo = 0
     limite_por_saque = 500
     saques_por_dia = 3
     extrato = []
@@ -12,8 +12,10 @@ def menu():
         if extrato == []:
             print(f'Não Foram realizadas movimentações')
         else:
-            for operacao,valor,saldo in extrato:
-                print(f'{operacao} {valor} {saldo}')
+            print(f"{'Operação':<15} {'Saldo Anterior':>15} {'Valor':>10} {'Saldo Atual':>15}")
+            for operacao,valor,saldo_anterior,saldo in extrato:
+                print(f'{operacao:<15} {saldo_anterior:>15.2f} {valor:>10.2f} {saldo:>15.2f}')
+
         
     def option_vizualizar_saldo():
         print(f'O saldo atual é de {format_value(saldo)}')
@@ -25,21 +27,23 @@ def menu():
     def option_sacar():
         nonlocal saques_por_dia
         nonlocal saldo
+        saldo_anterior = saldo
         nonlocal option
         
-        valor = int(input('Digite o valor do saque: '))
+        valor = int(input('Digite o valor do saque: R$'))
         
         if saques_por_dia <= 0:
             print(f'Limite de saque ultrapassado. Tente novamente mais tarde.')
         elif valor > saldo:
-            print(f'Não é possivel sacar o valor {format_value(valor)} , pois é maior que o saldo {format_value(saldo)}')
+            print(f'Não é possivel sacar o valor {format_value(valor)}.')
+            option_vizualizar_saldo()
         elif valor > limite_por_saque:
             print(f'Não é possivel sacar o valor {format_value(valor)} , pois é maior que limite por saque / {format_value(limite_por_saque)}')
         else:
             print(f'Sacando {format_value(valor)} de {format_value(saldo)}')
             saldo-=valor
             saques_por_dia-=1
-            extrato.append((menu_keys[option - 1],valor,saldo))
+            extrato.append((menu_keys[option - 1],valor,saldo_anterior,saldo))
             option_vizualizar_saldo()
 
     def option_depositar():
