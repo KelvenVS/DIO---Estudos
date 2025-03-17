@@ -1,21 +1,45 @@
 def menu():
-    saldo = 0
+    saldo = 3000
+    limite_por_saque = 500
+    limite_por_dia = 3
     extrato = []
     
-    def option_sacar():
-        valor = int(input('Digite o valor do saque: '))
-        print(f'Sacando {valor}')
-    
-    def option_depositar():
-        valor = int(input('Digite o valor do depósito: '))
-        print(f'Depositando {valor}')
+    def format_value(value):
+        return (f'R$ {value:.2f}')
     
     def option_vizualizar_extrato():
-        print(f'O saldo atual é de {saldo}')
+        nonlocal extrato
+        if extrato == []:
+            print(f'Não Foram realizadas movimentações')
+        else:
+            for operacao,valor,saldo in extrato:
+                print(f'{operacao} {valor} {saldo}')
+        
+    def option_vizualizar_saldo():
+        print(f'O saldo atual é de {format_value(saldo)}')
         
     def exit_prog():
         print("Saindo do programa...")
         exit()
+    
+    def option_sacar():
+        nonlocal saldo
+        nonlocal option
+        
+        valor = int(input('Digite o valor do saque: '))
+        if valor > saldo:
+            print(f'Não é possivel sacar o valor {format_value(valor)} , pois é maior que o saldo {format_value(saldo)}')
+        elif valor > limite_por_saque:
+            print(f'Não é possivel sacar o valor {format_value(valor)} , pois é maior que limite por saque / {format_value(limite_por_saque)}')
+        else:
+            print(f'Sacando {format_value(valor)} de {format_value(saldo)}')
+            saldo-=valor
+            extrato.append((menu_keys[option],valor,saldo))
+            option_vizualizar_saldo()
+
+    def option_depositar():
+        valor = int(input('Digite o valor do depósito: '))
+        print(f'Depositando {format_value(valor)}')
     
     menu_dict = {
         'Sacar': option_sacar,
