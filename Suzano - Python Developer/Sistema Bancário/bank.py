@@ -13,7 +13,16 @@ def menu():
         "Valor": [],
         "Saldo Atual": []
         }
-    
+    user = {
+        'nome': [],
+        'data_nascimento': [],
+        'cpf': [],
+        'endereco' : []}
+    contas = {
+        'agencia' : [],
+        'numero': [],
+        'cpf': [],
+        'extrato': []}
     
     ### Auxiliares    
     def registrar_extrato(data):
@@ -32,6 +41,13 @@ def menu():
         print("Saindo do programa...")
         exit()
     
+    def safe_input(data_type, prompt):
+        while True:
+            try:
+                return data_type(input(prompt))
+            except ValueError:
+                print(f"Entrada inválida! Digite um valor do tipo {data_type.__name__}.")
+            
     ### Visualizar
     def option_visualizar_extrato():
         if not extrato["Operação"]:
@@ -51,8 +67,7 @@ def menu():
     def option_visualizar_saldo():
         print(f'O saldo atual é de {format_value(saldo)}')
 
-    
-    ###Operações Bancárias
+    ### Operações Bancárias
     def option_sacar():
         nonlocal saques_por_dia
         nonlocal trans_por_dia
@@ -60,7 +75,7 @@ def menu():
         nonlocal option
         saldo_anterior = saldo
         
-        valor = int(input('Digite o valor do saque: R$'))
+        valor = safe_input(float,'Digite o valor do saque: R$')
         
         if saques_por_dia <= 0 or trans_por_dia <= 0:
             print(f'O limite diário de saques ou transações foi excedido. Por favor, tente novamente mais tarde.')
@@ -86,7 +101,7 @@ def menu():
         if trans_por_dia <= 0:
             print('O limite diário transações foi excedido')
         else:
-            valor = int(input('Digite o valor do depósito: R$'))
+            valor = safe_input(float,f'Digite o valor do depósito: R$ ')
             print(f'Depositando {format_value(valor)}')
             saldo+=valor
             trans_por_dia-=1
@@ -94,13 +109,26 @@ def menu():
             registrar_extrato(data)
             option_visualizar_saldo()
     
+    ### Usuários
+    def criar_user():
+        nonlocal user
+        print(f'Bem Vindo ao cadastro do banco:')
+        nome = input(f'Por favor, insira seu nome: ')
+        data_nascimento = input(f'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
+        cpf = input(f'Por favor, insira seu CPF (apenas números): ')
+        endereco = input(f'Por favor, insira seu endereço: ')
     
-    ###Menu
+        data = [nome,data_nascimento,cpf,endereco]
+        for key,value in zip(user,data):
+            user[key].append(value) 
+        
+    ### Menu
     menu_dict = {
         'Sacar': option_sacar,
         'Depositar': option_depositar,
         'Visualizar Extrato': option_visualizar_extrato,
         'Visualizar Saldo': option_visualizar_saldo,
+        'Cadastrar Usuário': criar_user,
         'Sair': exit_prog
     }
     
