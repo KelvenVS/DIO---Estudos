@@ -1,8 +1,14 @@
+import datetime
+
 def menu():
     saldo = 0
     limite_por_saque = 500
     saques_por_dia = 3
     extrato = []
+    
+    def date_now():
+        d = datetime.datetime.now()
+        return d.strftime("%d/%m/%Y %H:%M")
     
     def format_value(value):
         return (f'R$ {value:.2f}')
@@ -12,9 +18,9 @@ def menu():
         if extrato == []:
             print(f'Não Foram realizadas movimentações')
         else:
-            print(f"{'Operação':<10} {'Saldo Anterior':>15} {'Valor':>15} {'Saldo Atual':>15}")
-            for operacao,valor,saldo_anterior,saldo in extrato:
-                print(f'{operacao:<10} {format_value(saldo_anterior):>15} {format_value(valor):>15} {format_value(saldo):>15}')
+            print(f"{'Operação':<10}{'Data/Hora':>20}{'Saldo Anterior':>15}{'Valor':>15}{'Saldo Atual':>15}")
+            for operacao,data_hora,valor,saldo_anterior,saldo in extrato:
+                print(f'{operacao:<10}{data_hora:>20}{format_value(saldo_anterior):>15}{format_value(valor):>15} {format_value(saldo):>15}')
 
     def option_visualizar_saldo():
         print(f'O saldo atual é de {format_value(saldo)}')
@@ -42,7 +48,7 @@ def menu():
             print(f'Sacando {format_value(valor)} de {format_value(saldo)}')
             saldo-=valor
             saques_por_dia-=1
-            extrato.append((menu_keys[option - 1],valor,saldo_anterior,saldo))
+            extrato.append((menu_keys[option - 1],date_now(),valor,saldo_anterior,saldo))
             option_visualizar_saldo()
             
     def option_depositar():
@@ -53,7 +59,7 @@ def menu():
         valor = int(input('Digite o valor do depósito: R$'))
         print(f'Depositando {format_value(valor)}')
         saldo+=valor
-        extrato.append((menu_keys[option - 1],valor,saldo_anterior,saldo))
+        extrato.append((menu_keys[option - 1],date_now(),valor,saldo_anterior,saldo))
         option_visualizar_saldo()
     
     menu_dict = {
