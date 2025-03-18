@@ -1,4 +1,4 @@
-import datetime
+import datetime, os
 
 def menu():
     saldo = 0
@@ -48,8 +48,12 @@ def menu():
             except ValueError:
                 print(f"Entrada inválida! Digite um valor do tipo {data_type.__name__}.")
             
+    def limpar_menu():
+        os.system('cls') if os.name == 'nt' else  os.system('clear')
+        
     ### Visualizar
     def option_visualizar_extrato():
+        limpar_menu()
         if not extrato["Operação"]:
             print(f"Não Foram realizadas movimentações")
         else:
@@ -69,6 +73,7 @@ def menu():
 
     ### Operações Bancárias
     def option_sacar():
+        limpar_menu()
         nonlocal saques_por_dia
         nonlocal trans_por_dia
         nonlocal saldo
@@ -94,6 +99,7 @@ def menu():
             option_visualizar_saldo()
             
     def option_depositar():
+        limpar_menu()
         nonlocal saldo
         saldo_anterior = saldo
         nonlocal option
@@ -113,10 +119,10 @@ def menu():
     def criar_user():
         nonlocal user
         print(f'Bem Vindo ao cadastro do banco:')
-        nome = input(f'Por favor, insira seu nome: ')
-        data_nascimento = input(f'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
-        cpf = input(f'Por favor, insira seu CPF (apenas números): ')
-        endereco = input(f'Por favor, insira seu endereço: ')
+        nome = safe_input(str,'Por favor, insira seu nome: ')
+        data_nascimento = safe_input(str,'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
+        cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
+        endereco = safe_input(str,'Por favor, insira seu endereço: ')
     
         data = [nome,data_nascimento,cpf,endereco]
         for key,value in zip(user,data):
