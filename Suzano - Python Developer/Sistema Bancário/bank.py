@@ -13,7 +13,9 @@ def menu():
         "Valor": [],
         "Saldo Atual": []
         }
-        
+    
+    
+    ### Auxiliares    
     def registrar_extrato(data):
         data = list(data)
         for key,value in zip(extrato,data):
@@ -25,7 +27,12 @@ def menu():
     
     def format_value(value):
         return (f'R$ {value:.2f}')
+        
+    def exit_prog():
+        print("Saindo do programa...")
+        exit()
     
+    ### Visualizar
     def option_visualizar_extrato():
         if not extrato["Operação"]:
             print(f"Não Foram realizadas movimentações")
@@ -43,11 +50,9 @@ def menu():
 
     def option_visualizar_saldo():
         print(f'O saldo atual é de {format_value(saldo)}')
-        
-    def exit_prog():
-        print("Saindo do programa...")
-        exit()
+
     
+    ###Operações Bancárias
     def option_sacar():
         nonlocal saques_por_dia
         nonlocal trans_por_dia
@@ -89,6 +94,8 @@ def menu():
             registrar_extrato(data)
             option_visualizar_saldo()
     
+    
+    ###Menu
     menu_dict = {
         'Sacar': option_sacar,
         'Depositar': option_depositar,
@@ -98,7 +105,6 @@ def menu():
     }
     
     menu_keys = list(menu_dict.keys())
-    
     while True:
         print(f"{'#'*47} Menu {'#'*47}")
         
