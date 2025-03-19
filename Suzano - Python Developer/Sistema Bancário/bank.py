@@ -53,20 +53,20 @@ def menu():
     ### Visualizar
     def option_visualizar_extrato():
         limpar_menu()
-        if not extrato["Operação"]:
+        
+        num_conta = safe_input(str,f'Insira o número da conta: ')
+        conta = buscar_conta(num_conta)
+        if conta is None:
+            return
+        
+        if not conta["extrato"]:
             print(f"Não Foram realizadas movimentações")
         else:
             print(f"{'Operação':<15}{'Data/Hora':<20}{'Saldo Anterior':>15}{'Valor':>15}{'Saldo Atual':>15}")
             
-            for operacao, data_hora, saldo_anterior, valor, saldo in zip(
-                extrato["Operação"], 
-                extrato["Data/Hora"], 
-                extrato["Saldo Anterior"], 
-                extrato["Valor"], 
-                extrato["Saldo Atual"]
-            ):
-                print(f"{operacao:<15}{data_hora:<20}{format_value(saldo_anterior):>15}{format_value(valor):>15}{format_value(saldo):>15}")
-
+            for extrato in conta["extrato"]:
+                print(f"{extrato['Operação']:<15}{extrato['Data/Hora']:<20}{format_value(extrato['Saldo Anterior']):>15}{format_value(extrato['Valor']):>15}{format_value(extrato['Saldo Atual']):>15}")
+            
     def option_visualizar_saldo():
         print(f'O saldo atual é de {format_value(saldo)}')
 
@@ -76,9 +76,8 @@ def menu():
         
         num_conta = safe_input(str,f'Insira o número da conta: ')
 
-        conta = achar_conta(num_conta)
+        conta = buscar_conta(num_conta)
         if conta is None:
-            print('Conta não encontrada.')
             return
         
         valor = safe_input(float,'Digite o valor do saque: R$')
@@ -187,13 +186,14 @@ def menu():
                 return True
         return False      
     
-    def achar_conta(num_conta):
+    def buscar_conta(num_conta):
         global contas
         for conta in contas:
             if conta['numero'] == num_conta:
                 return conta
-            else:
-                return None
+        print('Conta não encontrada.')
+        return None
+
     
     ### Menu
     menu_dict = {
