@@ -1,5 +1,8 @@
 import datetime, os
 
+usuarios = []
+contas = []
+
 def menu():
     saldo = 0
     limite_por_saque = 500
@@ -13,13 +16,7 @@ def menu():
         "Valor": [],
         "Saldo Atual": []
         }
-    usuarios = {
-        'nome': [],
-        'data_nascimento': [],
-        'cpf': [],
-        'endereco' : []}
-    contas = []
-    
+
     ### Auxiliares    
     def registrar_extrato(data):
         data = list(data)
@@ -48,8 +45,8 @@ def menu():
         os.system('cls') if os.name == 'nt' else  os.system('clear')
         
     def gerar_numero_conta():
-        nonlocal contas
-        numero = f"{len(contas)+1:06d}"
+        global contas
+        numero = f"{len(contas)+2106:06d}"
         return numero
         
     ### Visualizar
@@ -118,42 +115,71 @@ def menu():
     
     ### Usuários
     def criar_usuario():
-        nonlocal usuarios
+        global usuarios
         print(f'Bem Vindo ao cadastro do banco:')
         cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
         
-        if cpf in usuarios['cpf']:
-            print('CPF ja cadastrado !!!')
-        else:
-            nome = safe_input(str,'Por favor, insira seu nome: ')
-            data_nascimento = safe_input(str,'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
-            endereco = safe_input(str,'Por favor, insira seu endereço: ')
-            
-            data = [nome,data_nascimento,cpf,endereco]
-            for key,value in zip(usuarios,data):
-                usuarios[key].append(value) 
+        if verificar_cadastro_usuario(cpf):
+            print('Esse CPF ja foi cadastrado !!!')
+            return   
+    
+        nome = safe_input(str,'Por favor, insira seu nome: ')
+        data_nascimento = safe_input(str,'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
+        endereco = safe_input(str,'Por favor, insira seu endereço: ')
+        
+        usuario = {
+        'nome': nome,
+        'data_nascimento': data_nascimento,
+        'cpf': cpf,
+        'endereco' : endereco}
+
+        usuarios.append(usuario)
         
     def criar_conta():
-        nonlocal usuarios
-        nonlocal contas
-        print(f'Bem vindo ao cadastro de conta:')
+        global usuarios
+        global contas
         
+        print(f'Bem vindo ao cadastro de conta:')
         cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
         agencia = '0001'
-        numero = gerar_numero_conta()
-        extrato = []
-        
-        if cpf not in usuarios['cpf']:
-            print('Usuário não cadastrado')
+        numero = gerar_numero_conta() 
+           
+        if verificar_cadastro_usuario(cpf):
+            pass
         else:
-            contas.append({
-                'cpf': cpf,
-                'agencia' : agencia,
-                'numero' : numero,
-                'extrato' : []
-            })
-            print(f'Conta adicionada com sucesso')
+            print('Usuário não cadastrado')
+            return
         
+        conta = {
+            'cpf': cpf,
+            'agencia' : agencia,
+            'numero' : numero
+        }
+        
+        contas.append(conta)
+        print(f'Conta adicionada com sucesso')
+    
+    def listar_usuarios():
+        global usuarios
+        if usuarios == []:
+            print('Não há usuários cadastrados')
+        else:
+            for elem in usuarios:
+                print(elem)
+    
+    def listar_contas():
+        global contas
+        
+        for conta in contas:
+            print(conta)
+    
+    def verificar_cadastro_usuario(cpf):
+        global usuarios
+        for usuario in usuarios:
+            if usuario['cpf'] == cpf:
+                return True
+        return False
+    
     ### Menu
     menu_dict = {
         'Sacar': option_sacar,
@@ -162,6 +188,8 @@ def menu():
         'Visualizar Saldo': option_visualizar_saldo,
         'Cadastrar Usuário': criar_usuario,
         'Cadastrar Conta': criar_conta,
+        'Listar Usuários' : listar_usuarios,
+        'Listar Contas' : listar_contas,
         'Sair': exit_prog}
     
     menu_keys = list(menu_dict.keys())
