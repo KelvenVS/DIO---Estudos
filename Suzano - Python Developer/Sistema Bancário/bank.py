@@ -4,11 +4,7 @@ usuarios = []
 contas = []
 
 def menu():
-    saldo = 0
-    limite_por_saque = 500
-    saques_por_dia = 3
-    trans_por_dia = 10
-    
+   
     ### Auxiliares    
     def registrar_extrato(data):
         extrato_linha = {
@@ -97,7 +93,7 @@ def menu():
             print(f'Não é possivel sacar o valor {format_value(valor)}.')
             option_visualizar_saldo()
         elif valor > conta['limite_por_saque']:
-            print(f'Não é possível sacar o valor {format_value(valor)}, pois excede o limite permitido por saque: {format_value(limite_por_saque)}.')
+            print(f"Não é possível sacar o valor {format_value(valor)}, pois excede o limite permitido por saque: {format_value(conta['limite_por_saque'])}.")
         else:
             print(f'Realizando o saque de {format_value(valor)}')
             nonlocal option
@@ -111,20 +107,23 @@ def menu():
             
     def option_depositar():
         limpar_menu()
-        nonlocal saldo
-        saldo_anterior = saldo
-        nonlocal option
-        nonlocal trans_por_dia
-        if trans_por_dia <= 0:
+        num_conta = safe_input(str,f'Insira o número da conta: ')
+        conta = buscar_conta(num_conta)
+        if conta is None:
+            return
+
+        if conta['transacoes_limite'] <= 0:
             print('O limite diário transações foi excedido')
         else:
+            nonlocal option
+            saldo_anterior = conta['saldo']
             valor = safe_input(float,f'Digite o valor do depósito: R$ ')
             print(f'Depositando {format_value(valor)}')
-            saldo+=valor
-            trans_por_dia-=1
-            data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,saldo)
-            registrar_extrato(data)
-            option_visualizar_saldo()
+            conta['saldo']+=valor
+            conta['transacoes_limite']-=1
+            data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,conta['saldo'])
+            conta['extrato'].append(registrar_extrato(data))
+            option_visualizar_saldo(conta)
     
     ### Usuários
     def criar_usuario():
