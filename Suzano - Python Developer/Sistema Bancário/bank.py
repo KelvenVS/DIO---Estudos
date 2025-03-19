@@ -65,6 +65,7 @@ def menu():
             
     def option_visualizar_saldo(conta=None):
         if conta is None:
+            limpar_menu()
             num_conta = safe_input(str,f'Insira o número da conta: ')
             conta = buscar_conta(num_conta)
             if conta is None:
@@ -127,6 +128,7 @@ def menu():
     
     ### Usuários
     def criar_usuario():
+        limpar_menu()
         global usuarios
         print(f'Bem Vindo ao cadastro do banco:')
         cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
@@ -146,8 +148,10 @@ def menu():
         'endereco' : endereco}
 
         usuarios.append(usuario)
+        print(f'Usuário adicionado com sucesso')
         
     def criar_conta():
+        limpar_menu()
         global usuarios
         global contas
         
@@ -174,6 +178,7 @@ def menu():
         print(f'Conta adicionada com sucesso')
     
     def listar_usuarios():
+        limpar_menu()
         global usuarios
         if usuarios == []:
             print('Não há usuários cadastrados')
@@ -182,6 +187,7 @@ def menu():
                 print(elem)
     
     def listar_contas():
+        limpar_menu()
         global contas
         
         for conta in contas:
