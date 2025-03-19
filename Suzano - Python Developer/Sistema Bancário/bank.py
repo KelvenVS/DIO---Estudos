@@ -229,7 +229,7 @@ def menu():
             print(f"{i}. {elem}")
         
         print(f"{'#'*100}") 
-        option = int(input(f'Escolha uma das opções: '))
+        option = safe_input(int,f'Escolha uma das opções: ')
 
         if option not in range(1,len(menu_keys) + 1):
             print(f'Opção inválida')
@@ -237,5 +237,4 @@ def menu():
             menu_dict[menu_keys[option - 1]]()
 
 if __name__ == '__main__':
-    while True:
-        menu()
+    menu()
