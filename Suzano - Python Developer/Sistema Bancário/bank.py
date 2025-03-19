@@ -72,29 +72,34 @@ def menu():
     ### Operações Bancárias
     def option_sacar():
         limpar_menu()
-        nonlocal saques_por_dia
-        nonlocal trans_por_dia
-        nonlocal saldo
+        
+        num_conta = safe_input(str,f'Insira o número da conta: ')
+
+        conta = achar_conta(num_conta)
+        if conta is None:
+            print('Conta não encontrada.')
+            return
+        
         nonlocal option
-        saldo_anterior = saldo
+        #saldo_anterior = conta['saldo']
         
         valor = safe_input(float,'Digite o valor do saque: R$')
         
-        if saques_por_dia <= 0 or trans_por_dia <= 0:
+        if conta['saques_limite'] <= 0 or conta['transacoes_limite'] <= 0:
             print(f'O limite diário de saques ou transações foi excedido. Por favor, tente novamente mais tarde.')
-        elif valor > saldo:
+        elif valor > conta['saldo']:
             print(f'Não é possivel sacar o valor {format_value(valor)}.')
             option_visualizar_saldo()
-        elif valor > limite_por_saque:
+        elif valor > conta['limite_por_saque']:
             print(f'Não é possível sacar o valor {format_value(valor)}, pois excede o limite permitido por saque: {format_value(limite_por_saque)}.')
         else:
             print(f'Realizando o saque de {format_value(valor)}')
-            saldo-=valor
-            saques_por_dia-=1
-            trans_por_dia-=1
-            data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,saldo)
-            registrar_extrato(data)
-            option_visualizar_saldo()
+            conta['saldo']-=valor
+            conta['saques_limite']-=1
+            conta['transacoes_limite']-=1
+            #data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,saldo)
+            #registrar_extrato(data)
+            #option_visualizar_saldo()
             
     def option_depositar():
         limpar_menu()
@@ -141,9 +146,7 @@ def menu():
         
         print(f'Bem vindo ao cadastro de conta:')
         cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
-        agencia = '0001'
-        numero = gerar_numero_conta() 
-           
+
         if verificar_cadastro_usuario(cpf):
             pass
         else:
@@ -152,9 +155,13 @@ def menu():
         
         conta = {
             'cpf': cpf,
-            'agencia' : agencia,
-            'numero' : numero
-        }
+            'agencia' : '0001',
+            'numero' : gerar_numero_conta(),
+            'saldo' : 500,
+            'saques_limite' : 3,
+            'transacoes_limite' : 10,
+            'limite_por_saque' : 500,
+            'extrato' : []}
         
         contas.append(conta)
         print(f'Conta adicionada com sucesso')
@@ -178,7 +185,15 @@ def menu():
         for usuario in usuarios:
             if usuario['cpf'] == cpf:
                 return True
-        return False
+        return False      
+    
+    def achar_conta(num_conta):
+        global contas
+        for conta in contas:
+            if conta['numero'] == num_conta:
+                return conta
+            else:
+                return None
     
     ### Menu
     menu_dict = {
