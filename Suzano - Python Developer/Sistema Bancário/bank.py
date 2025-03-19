@@ -9,19 +9,20 @@ def menu():
     saques_por_dia = 3
     trans_por_dia = 10
     
-    extrato = {
-        "Operação": [],
-        "Data/Hora": [],
-        "Saldo Anterior": [],
-        "Valor": [],
-        "Saldo Atual": []
-        }
-
     ### Auxiliares    
     def registrar_extrato(data):
+        extrato_linha = {
+        "Operação": None,
+        "Data/Hora": None,
+        "Saldo Anterior": None,
+        "Valor": None,
+        "Saldo Atual": None
+        }
+        
         data = list(data)
-        for key,value in zip(extrato,data):
-            extrato[key].append(value)       
+        for key,value in zip(extrato_linha,data):
+            extrato_linha[key] = value 
+        return extrato_linha     
         
     def date_now():
         d = datetime.datetime.now()
@@ -80,9 +81,6 @@ def menu():
             print('Conta não encontrada.')
             return
         
-        nonlocal option
-        #saldo_anterior = conta['saldo']
-        
         valor = safe_input(float,'Digite o valor do saque: R$')
         
         if conta['saques_limite'] <= 0 or conta['transacoes_limite'] <= 0:
@@ -94,12 +92,14 @@ def menu():
             print(f'Não é possível sacar o valor {format_value(valor)}, pois excede o limite permitido por saque: {format_value(limite_por_saque)}.')
         else:
             print(f'Realizando o saque de {format_value(valor)}')
+            nonlocal option
+            saldo_anterior = conta['saldo']
             conta['saldo']-=valor
             conta['saques_limite']-=1
             conta['transacoes_limite']-=1
-            #data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,saldo)
-            #registrar_extrato(data)
-            #option_visualizar_saldo()
+            data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,saldo)
+            conta['extrato'].append(registrar_extrato(data))
+            option_visualizar_saldo()
             
     def option_depositar():
         limpar_menu()
