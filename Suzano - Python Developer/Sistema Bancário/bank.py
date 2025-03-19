@@ -13,16 +13,12 @@ def menu():
         "Valor": [],
         "Saldo Atual": []
         }
-    user = {
+    usuarios = {
         'nome': [],
         'data_nascimento': [],
         'cpf': [],
         'endereco' : []}
-    contas = {
-        'agencia' : [],
-        'numero': [],
-        'cpf': [],
-        'extrato': []}
+    contas = []
     
     ### Auxiliares    
     def registrar_extrato(data):
@@ -50,6 +46,11 @@ def menu():
             
     def limpar_menu():
         os.system('cls') if os.name == 'nt' else  os.system('clear')
+        
+    def gerar_numero_conta():
+        nonlocal contas
+        numero = f"{len(contas)+1:06d}"
+        return numero
         
     ### Visualizar
     def option_visualizar_extrato():
@@ -116,17 +117,42 @@ def menu():
             option_visualizar_saldo()
     
     ### Usuários
-    def criar_user():
-        nonlocal user
+    def criar_usuario():
+        nonlocal usuarios
         print(f'Bem Vindo ao cadastro do banco:')
-        nome = safe_input(str,'Por favor, insira seu nome: ')
-        data_nascimento = safe_input(str,'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
         cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
-        endereco = safe_input(str,'Por favor, insira seu endereço: ')
-    
-        data = [nome,data_nascimento,cpf,endereco]
-        for key,value in zip(user,data):
-            user[key].append(value) 
+        
+        if cpf in usuarios['cpf']:
+            print('CPF ja cadastrado !!!')
+        else:
+            nome = safe_input(str,'Por favor, insira seu nome: ')
+            data_nascimento = safe_input(str,'Por favor, insira sua data de nascimento (DD/MM/AAAA): ')
+            endereco = safe_input(str,'Por favor, insira seu endereço: ')
+            
+            data = [nome,data_nascimento,cpf,endereco]
+            for key,value in zip(usuarios,data):
+                usuarios[key].append(value) 
+        
+    def criar_conta():
+        nonlocal usuarios
+        nonlocal contas
+        print(f'Bem vindo ao cadastro de conta:')
+        
+        cpf = safe_input(int,'Por favor, insira seu CPF (apenas números): ')
+        agencia = '0001'
+        numero = gerar_numero_conta()
+        extrato = []
+        
+        if cpf not in usuarios['cpf']:
+            print('Usuário não cadastrado')
+        else:
+            contas.append({
+                'cpf': cpf,
+                'agencia' : agencia,
+                'numero' : numero,
+                'extrato' : []
+            })
+            print(f'Conta adicionada com sucesso')
         
     ### Menu
     menu_dict = {
@@ -134,9 +160,9 @@ def menu():
         'Depositar': option_depositar,
         'Visualizar Extrato': option_visualizar_extrato,
         'Visualizar Saldo': option_visualizar_saldo,
-        'Cadastrar Usuário': criar_user,
-        'Sair': exit_prog
-    }
+        'Cadastrar Usuário': criar_usuario,
+        'Cadastrar Conta': criar_conta,
+        'Sair': exit_prog}
     
     menu_keys = list(menu_dict.keys())
     while True:
