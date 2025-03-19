@@ -67,8 +67,17 @@ def menu():
             for extrato in conta["extrato"]:
                 print(f"{extrato['Operação']:<15}{extrato['Data/Hora']:<20}{format_value(extrato['Saldo Anterior']):>15}{format_value(extrato['Valor']):>15}{format_value(extrato['Saldo Atual']):>15}")
             
-    def option_visualizar_saldo():
-        print(f'O saldo atual é de {format_value(saldo)}')
+    def option_visualizar_saldo(conta=None):
+        if conta is None:
+            num_conta = safe_input(str,f'Insira o número da conta: ')
+            conta = buscar_conta(num_conta)
+            if conta is None:
+                print('Conta não encontrada')
+                return
+            else:
+                print(f"O saldo da conta {conta['numero']} é de {format_value(conta['saldo'])}")
+        else:
+            print(f"O saldo da conta {conta['numero']} é de {format_value(conta['saldo'])}")    
 
     ### Operações Bancárias
     def option_sacar():
@@ -96,9 +105,9 @@ def menu():
             conta['saldo']-=valor
             conta['saques_limite']-=1
             conta['transacoes_limite']-=1
-            data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,saldo)
+            data = (menu_keys[option - 1],date_now(),saldo_anterior,valor,conta['saldo'])
             conta['extrato'].append(registrar_extrato(data))
-            option_visualizar_saldo()
+            option_visualizar_saldo(conta)
             
     def option_depositar():
         limpar_menu()
