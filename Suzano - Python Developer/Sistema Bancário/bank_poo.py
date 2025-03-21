@@ -5,7 +5,7 @@ class PessoaFisica:
         if not self.validar_cpf(cpf):
             raise ValueError("CPF inválido")
         else:
-            self._cpf = cpf
+            self._cpf: str = cpf
         self._nome: str = nome
         self._data_nascimento: date = data_nascimento
     
@@ -30,6 +30,25 @@ class PessoaFisica:
     def __str__(self):
         return f"{self.__class__.__name__}: {', '.join([f'{chave.capitalize()}:{valor}' for chave,valor in self.__dict__.items()])}"
 
-pessoa = PessoaFisica(cpf="1234567890", nome="João Silva", data_nascimento=date(1990, 5, 10))
+class Cliente(PessoaFisica):
+    def __init__(self, cpf: str, nome: str, data_nascimento: date, endereco: str, contas: list):
+        super().__init__(cpf, nome, data_nascimento)
+        self._endereco: str = endereco
+        self._contas: list = contas
+    
+    @classmethod
+    def insert_cliente(cls):
+        cpf = input("Digite o CPF: ")
+        nome = input("Digite o nome: ")
+        data_nascimento = date.fromisoformat(input("Digite a data de nascimento (YYYY-MM-DD): "))
+        endereco = input("Digite o endereço: ")
+        contas = []
+        return cls(cpf, nome, data_nascimento, endereco, contas)
+    
+
+pessoa = PessoaFisica(cpf="12345678900", nome="João Silva", data_nascimento=date(1990, 5, 10))
 print(pessoa)
 pessoa.cpf = "48656250892"
+
+cliente = Cliente.insert_cliente()
+print(cliente)
