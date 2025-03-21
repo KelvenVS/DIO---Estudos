@@ -2,10 +2,7 @@ from datetime import date
 
 class PessoaFisica:
     def __init__(self, cpf: str, nome: str, data_nascimento: date):
-        if not self.validar_cpf(cpf):
-            raise ValueError("CPF inválido")
-        else:
-            self._cpf: str = cpf
+        self._cpf: str = cpf
         self._nome: str = nome
         self._data_nascimento: date = data_nascimento
     
@@ -38,7 +35,12 @@ class Cliente(PessoaFisica):
     
     @classmethod
     def insert_cliente(cls):
-        cpf = input("Digite o CPF: ")
+        while True:
+            cpf = input("Digite o CPF: ")
+            if cls.validar_cpf(cpf):
+                break
+            print("CPF inválido! Digite um CPF com 11 dígitos numéricos.")
+            
         nome = input("Digite o nome: ")
         data_nascimento = date.fromisoformat(input("Digite a data de nascimento (YYYY-MM-DD): "))
         endereco = input("Digite o endereço: ")
