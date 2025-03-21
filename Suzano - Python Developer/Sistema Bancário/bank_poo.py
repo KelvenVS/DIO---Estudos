@@ -71,18 +71,25 @@ class Conta:
         return f"{random.randint(1, 10):06d}"
     
     @classmethod
-    def insert_conta(cls):
-        saldo = 0.0
-        numero = cls.gerar_numero_conta()
-        agencia = '0001'
-        historico = Historico()
-        return cls(saldo, numero, agencia, historico)
+    def insert_conta(cls,  tipo="Corrente"):
+            if tipo == "Corrente":
+                saldo = 0.0
+                numero = cls.gerar_numero_conta()
+                agencia = '0001'
+                historico = Historico()
+                return ContaCorrente(saldo, numero, agencia, historico)
 
+class ContaCorrente(Conta):
+    def __init__(self,saldo, numero, agencia, historico, transacoes_dia = 5, limite_saque = 500):
+        super().__init__(saldo, numero, agencia, historico)
+        self._transacoes_dia = transacoes_dia
+        self._limite_saque = limite_saque
+    
     def __str__(self):
-        return f"Agência: {self._agencia} | Numero: {self._numero:>5} | Saldo: {self._saldo:>5}"
-        
+        return f"Tipo: {self.__class__.__name__} | Agência: {self._agencia} | Numero: {self._numero:>5} | Saldo: {self._saldo:>5}"
+
 cliente1 = Cliente.insert_cliente()
-cliente1._contas.append(Conta.insert_conta())
+cliente1._contas.append(Conta.insert_conta("Corrente"))
 
 for conta in cliente1._contas:
     print(conta)
