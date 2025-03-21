@@ -1,6 +1,6 @@
 import random
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import date, datetime
 
 class PessoaFisica:
     def __init__(self, cpf: str, nome: str, data_nascimento: date):
@@ -56,16 +56,13 @@ class Cliente:
     
     def __str__(self):
         return f"{self.__class__.__name__}: {', '.join([f'{chave.capitalize()}:{valor}' for chave,valor in self.__dict__.items()])}"
-    
-class Extrato:
-    pass
 
 class Conta:
-    def __init__(self, saldo: float, numero: str, agencia: str, extrato: Extrato):
+    def __init__(self, saldo: float, numero: str, agencia: str, extrato: list):
         self._saldo: float = saldo
         self._numero: str = numero
         self._agencia: str = agencia
-        self._historico: Extrato = extrato
+        self._extrato: list = extrato
     
     @property
     def saldo(self):
@@ -81,41 +78,82 @@ class Conta:
                 saldo = 500
                 numero = cls.gerar_numero_conta()
                 agencia = '0001'
-                historico = Extrato()
+                historico = []
                 return ContaCorrente(saldo, numero, agencia, historico)
 
 class Transacao(ABC):
     @abstractmethod
-    def transacao(self, conta, valor: float):
+    def registrar(self, conta, valor: float):
         pass
-
+        
 class Saque(Transacao):
-    def transacao(self, conta, valor: float):
+    def registrar(self, conta, valor: float):
         if conta.saldo >= valor:
+            saldo_anterior = conta.saldo
             conta._saldo -= valor
             print(f"Saque de R${valor:.2f} realizado com sucesso.")
+            
+            conta._extrato.append(
+                Extrato(operacao = self.__class__.__name__,
+                                    data_hora = datetime.now(),
+                                    saldo_anterior = saldo_anterior,
+                                    valor = valor,
+                                    saldo_atual= conta._saldo
+                    )
+                )
         else:
             print("Saldo insuficiente para saque.")
             
 class Deposito(Transacao):
-    def transacao(self, conta, valor: float):
+    def registrar(self, conta, valor: float):
         if valor > 0:
+            saldo_anterior = conta._saldo
             conta._saldo += valor
             print(f"Depósito de R${valor:.2f} realizado com sucesso.")
+          
+            conta._extrato.append(
+                Extrato(operacao = self.__class__.__name__,
+                                    data_hora = datetime.now(),
+                                    saldo_anterior = saldo_anterior,
+                                    valor = valor,
+                                    saldo_atual= conta._saldo
+                    )
+                )
         else:
             print("Valor inválido para depósito.")
+
+class Extrato:
+    def __init__(self, operacao: str, data_hora: datetime, saldo_anterior: str, valor: str, saldo_atual: str):
+        self._operacao: str = operacao
+        self._data_hora: datetime = data_hora
+        self._saldo_anterior: str = saldo_anterior
+        self._valor: str = valor
+        self._saldo_atual: str = saldo_atual
+        
+    def __str__(self):
+        return f'Operação: {self._operacao} | Data e Hora: {self._data_hora} | Saldo Anterior: {self._saldo_anterior} | Saldo Atual: {self._saldo_atual}'
             
 class ContaCorrente(Conta):
-    def __init__(self, saldo, numero, agencia, historico, transacoes_dia = 5, limite_saque = 500):
-        super().__init__(saldo, numero, agencia, historico)
+    def __init__(self, saldo, numero, agencia, extrato, transacoes_dia = 5, limite_saque = 500):
+        super().__init__(saldo, numero, agencia, extrato)
         self._transacoes_dia = transacoes_dia
         self._limite_saque = limite_saque
+        self._extrato = []
         
     def realizar_transacao(self, transacao: Transacao, valor: float):
         if isinstance(transacao, Saque) and valor > self._limite_saque:
             print(f"Saque excede o limite de R${self._limite_saque:.2f}.")
         else:
-            transacao.transacao(self, valor)
+            transacao.registrar(self, valor)
+    
+    def exibir_extrato(self):
+        if not self._extrato:
+            print("Nenhuma transação foi realizada.")
+        else:
+            print("\n=== Extrato ===")
+            for transacao in self._extrato:
+                print(transacao)
+            print("================")
     
     def __str__(self):
         return f"Tipo: {self.__class__.__name__} | Agência: {self._agencia} | Numero: {self._numero:>5} | Saldo: {self._saldo:>5}"
@@ -131,4 +169,4 @@ conta_corrente.realizar_transacao(Deposito(), 2000)  # Depósito
 conta_corrente.realizar_transacao(Saque(), 400)    # Saque
 
 for conta in cliente1._contas:
-    print(conta)
+    print(conta.exibir_extrato())
