@@ -16,13 +16,21 @@ class PessoaFisica:
         return f"{self.__class__.__name__}: {', '.join([f'{chave.capitalize()}:{valor}' for chave,valor in self.__dict__.items()])}"
 
 class Cliente:
-    def __init__(self, pessoa, endereco: str, contas: list):
+    def __init__(self, pessoa, endereco: str):
         self._pessoa = pessoa
         self._endereco: str = endereco
-        self._contas: list = contas
+        self._contas: list = []
+    
+    def adicionar_conta(self, conta):
+        """Adiciona uma conta ao cliente."""
+        if isinstance(conta, Conta):
+            self._contas.append(conta)
+            print("Conta adicionada com sucesso!")
+        else:
+            print("Erro: objeto inválido.")
     
     @classmethod
-    def insert_cliente(cls):
+    def criar_cliente(cls):
         print("Insira os dados do cliente:\n")
 
         # Coletar e validar CPF
@@ -46,23 +54,25 @@ class Cliente:
         # Coletar endereço
         endereco = input("Digite o endereço: ")
 
-        # Criar instância de PessoaFisica
+        # Criar instância de PessoaFisica e Cliente
         pessoa = PessoaFisica(cpf, nome, data_nascimento)
+        cliente = cls(pessoa, endereco)
         
-        contas = [Conta.insert_conta()]
+        resposta = input("Deseja criar uma conta agora? (S/N): ").strip().lower()
+        if resposta == 's':
+            cliente.adicionar_conta(ContaCorrente.insert_conta())
 
-        # Criar e retornar instância de Cliente
-        return cls(pessoa, endereco,contas)
+        return cliente
     
     def __str__(self):
         return f"{self.__class__.__name__}: {', '.join([f'{chave.capitalize()}:{valor}' for chave,valor in self.__dict__.items()])}"
 
-class Conta:
-    def __init__(self, saldo: float, numero: str, agencia: str, extrato: list):
+class Conta(ABC):
+    def __init__(self, saldo: float, numero: str, agencia: str):
         self._saldo: float = saldo
         self._numero: str = numero
         self._agencia: str = agencia
-        self._extrato: list = extrato
+        self._extrato: list = []
     
     @property
     def saldo(self):
@@ -72,14 +82,13 @@ class Conta:
     def gerar_numero_conta():
         return f"{random.randint(1, 10):06d}"
     
-    @classmethod
-    def insert_conta(cls,  tipo="Corrente"):
-            if tipo == "Corrente":
-                saldo = 500
-                numero = cls.gerar_numero_conta()
-                agencia = '0001'
-                historico = []
-                return ContaCorrente(saldo, numero, agencia, historico)
+    @abstractmethod
+    def insert_conta(self):
+        pass
+            
+    @abstractmethod
+    def realizar_transacao(self, transacao, valor: float):
+        pass
 
 class Transacao(ABC):
     @abstractmethod
@@ -134,12 +143,20 @@ class Extrato:
         return f'Operação: {self._operacao} | Data e Hora: {self._data_hora} | Saldo Anterior: {self._saldo_anterior} | Saldo Atual: {self._saldo_atual}'
             
 class ContaCorrente(Conta):
-    def __init__(self, saldo, numero, agencia, extrato, transacoes_dia = 5, limite_saque = 500):
-        super().__init__(saldo, numero, agencia, extrato)
+    def __init__(self, saldo, numero, agencia, transacoes_dia = 5, limite_saque = 500):
+        super().__init__(saldo, numero, agencia)
         self._transacoes_dia = transacoes_dia
         self._limite_saque = limite_saque
         self._extrato = []
-        
+    
+    @classmethod   
+    def insert_conta(cls):
+        saldo = 500
+        numero = cls.gerar_numero_conta()
+        agencia = '0001'
+        extrato = []
+        return cls(saldo, numero, agencia, extrato)
+    
     def realizar_transacao(self, transacao: Transacao, valor: float):
         if isinstance(transacao, Saque) and valor > self._limite_saque:
             print(f"Saque excede o limite de R${self._limite_saque:.2f}.")
@@ -158,15 +175,16 @@ class ContaCorrente(Conta):
     def __str__(self):
         return f"Tipo: {self.__class__.__name__} | Agência: {self._agencia} | Numero: {self._numero:>5} | Saldo: {self._saldo:>5}"
 
-cliente1 = Cliente.insert_cliente()
-cliente1._contas.append(Conta.insert_conta("Corrente"))
+if __name__ == '__main__':
+    cliente1 = Cliente.criar_cliente()
+    cliente1.adicionar_conta(ContaCorrente.insert_conta())
 
-for conta in cliente1._contas:
-    print(conta)
+    for conta in cliente1._contas:
+        print(conta)
 
-conta_corrente = cliente1._contas[0]
-conta_corrente.realizar_transacao(Deposito(), 2000)  # Depósito
-conta_corrente.realizar_transacao(Saque(), 400)    # Saque
+    conta_corrente = cliente1._contas[0]
+    conta_corrente.realizar_transacao(Deposito(), 2000)  # Depósito
+    conta_corrente.realizar_transacao(Saque(), 400)    # Saque
 
-for conta in cliente1._contas:
-    print(conta.exibir_extrato())
+    for conta in cliente1._contas:
+        conta.exibir_extrato()
