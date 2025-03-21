@@ -68,11 +68,11 @@ class Cliente:
         return f"{self.__class__.__name__}: {', '.join([f'{chave.capitalize()}:{valor}' for chave,valor in self.__dict__.items()])}"
 
 class Conta(ABC):
-    def __init__(self, saldo: float, numero: str, agencia: str):
+    def __init__(self, saldo: float, numero: str, agencia: str,extrato: list):
         self._saldo: float = saldo
         self._numero: str = numero
         self._agencia: str = agencia
-        self._extrato: list = []
+        self._extrato: list = extrato
     
     @property
     def saldo(self):
@@ -143,11 +143,10 @@ class Extrato:
         return f'Operação: {self._operacao} | Data e Hora: {self._data_hora} | Saldo Anterior: {self._saldo_anterior} | Saldo Atual: {self._saldo_atual}'
             
 class ContaCorrente(Conta):
-    def __init__(self, saldo, numero, agencia, transacoes_dia = 5, limite_saque = 500):
-        super().__init__(saldo, numero, agencia)
+    def __init__(self, saldo, numero, agencia, extrato, transacoes_dia = 5, limite_saque = 500):
+        super().__init__(saldo, numero, agencia, extrato)
         self._transacoes_dia = transacoes_dia
         self._limite_saque = limite_saque
-        self._extrato = []
     
     @classmethod   
     def insert_conta(cls):
