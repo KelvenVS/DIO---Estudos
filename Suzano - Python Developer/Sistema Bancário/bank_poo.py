@@ -189,11 +189,28 @@ class Sistema:
             self._clientes[cpf] = cliente
             print(f"Cliente {cliente._pessoa._nome} adicionado com sucesso!")  
 
+    def exibir_clientes(self):
+        if not self._clientes:
+            print("Nenhum Cliente cadastrado.")
+        else:
+            for cpf, cliente in self._clientes.items():
+                print(f"CPF: {cpf} | Cliente: {cliente._pessoa._nome}")
+
+    def buscar_cliente(self, cpf):
+        return self._clientes.get(cpf, "Cliente não encontrado")
+    
+    def exit_prog(self):
+        print("Saindo do Sistema...")
+        exit()
+      
 class Menu(Sistema):
     def __init__(self):
         super().__init__()
         self.menu_dict = {
-            'Cadastrar Cliente': self.adicionar_cliente
+            'Cadastrar Cliente': self.adicionar_cliente,
+            'Exibir Clientes': self.exibir_clientes,
+            'Buscar Cliente': self.buscar_cliente_menu,
+            'Sair': self.exit_prog
         }
     
     ## Exibe o Menu
@@ -203,6 +220,11 @@ class Menu(Sistema):
                 return data_type(input(prompt))
             except ValueError:
                 print(f"Entrada inválida! Digite um valor do tipo {data_type.__name__}.")
+                
+    def buscar_cliente_menu(self):
+        cpf = self.safe_input(str, "Digite o CPF do cliente que deseja buscar: ")
+        resultado = self.buscar_cliente(cpf)
+        print(resultado)
         
     def exibir_menu(self):
         menu_keys = list(self.menu_dict.keys())
