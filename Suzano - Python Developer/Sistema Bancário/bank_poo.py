@@ -235,6 +235,7 @@ class Menu(Sistema):
             'Listar Contas por Cliente': self.listar_contas_menu,
             'Sacar': self.sacar_menu,
             'Depositar': self.depositar_menu,
+            'Exibir Extrato': self.exibir_extrato_menu,
             'Sair': self.exit_prog
         }
     
@@ -289,6 +290,12 @@ class Menu(Sistema):
         conta = self.selecionar_conta(contas,None,num_conta)
         valor = self.safe_input(float,f'Insira o valor do Depósito:')
         self.depositar(conta,valor)
+    
+    def exibir_extrato_menu(self):
+        contas = self.listar_contas_menu()
+        num_conta = self.safe_input(str,f'Insira o N° da conta para operação:')
+        conta = self.selecionar_conta(contas,None,num_conta)
+        conta.exibir_extrato()
     
     def exibir_menu(self):
         menu_keys = list(self.menu_dict.keys())
