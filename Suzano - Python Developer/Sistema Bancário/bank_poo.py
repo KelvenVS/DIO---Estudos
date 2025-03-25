@@ -61,7 +61,7 @@ class Cliente:
         
         resposta = input("Deseja criar uma conta agora? (S/N): ").strip().lower()
         if resposta == 's':
-            cliente.adicionar_conta(ContaCorrente.insert_conta())
+            cliente.adicionar_conta(ContaCorrente.criar_conta())
 
         return cliente
     
@@ -84,7 +84,7 @@ class Conta(ABC):
         return f"{random.randint(1, 10):06d}"
     
     @abstractmethod
-    def insert_conta(self):
+    def criar_conta(self):
         pass
             
     @abstractmethod
@@ -139,9 +139,22 @@ class Extrato:
         self._saldo_anterior: str = saldo_anterior
         self._valor: str = valor
         self._saldo_atual: str = saldo_atual
+    
+    def date_formatted(self):
+        return self._data_hora.strftime("%d/%m/%Y %H:%M")
+    
+    def exibir_valor(self):
+        if self._operacao == 'Saque':
+            return f'-{self._valor}'
+        else:
+            return f'+{self._valor}'
         
     def __str__(self):
-        return f'Operação: {self._operacao} | Data e Hora: {self._data_hora} | Saldo Anterior: {self._saldo_anterior} | Saldo Atual: {self._saldo_atual}'
+        return (f'Operação: {self._operacao:<10} | '
+                f'Data e Hora: {self.date_formatted():<10} | '
+                f'Saldo Anterior: {self._saldo_anterior:>10} | '
+                f'Valor: {self.exibir_valor():>10} | '
+                f'Saldo Atual: {self._saldo_atual:>10}')
             
 class ContaCorrente(Conta):
     def __init__(self, saldo, numero, agencia, extrato, transacoes_dia = 5, limite_saque = 500):
@@ -150,7 +163,7 @@ class ContaCorrente(Conta):
         self._limite_saque = limite_saque
     
     @classmethod   
-    def insert_conta(cls):
+    def criar_conta(cls):
         saldo = 500
         numero = cls.gerar_numero_conta()
         agencia = '0001'
@@ -270,7 +283,7 @@ class Menu(Sistema):
         cpf = self.safe_input(str,f'Insira o CPF da conta: ')
         cliente = self.buscar_cliente(cpf)
         if cliente != None:
-            conta = ContaCorrente.insert_conta()
+            conta = ContaCorrente.criar_conta()
             cliente._contas.append(conta)
             print("Conta cadastrada com sucesso")
         else:
