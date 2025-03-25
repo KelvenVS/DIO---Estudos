@@ -199,6 +199,12 @@ class Sistema:
     def buscar_cliente(self, cpf):
         return self._clientes.get(cpf, "Cliente não encontrado")
     
+    def exibir_contas(self,cliente):
+        return cliente._contas
+    
+    def sacar(self,conta,valor):
+        conta.realizar_transacao(Saque(), valor)
+        
     def exit_prog(self):
         print("Saindo do Sistema...")
         exit()
@@ -210,6 +216,8 @@ class Menu(Sistema):
             'Cadastrar Cliente': self.adicionar_cliente,
             'Exibir Clientes': self.exibir_clientes,
             'Buscar Cliente': self.buscar_cliente_menu,
+            'Listar Contas por Cliente': self.listar_contas,
+            'Sacar': self.sacar_menu,
             'Sair': self.exit_prog
         }
     
@@ -225,7 +233,31 @@ class Menu(Sistema):
         cpf = self.safe_input(str, "Digite o CPF do cliente que deseja buscar: ")
         resultado = self.buscar_cliente(cpf)
         print(resultado)
+    
+    def listar_contas(self,cliente = None):
+        if cliente == None:
+            cpf = self.safe_input(str,f'Insira o cpf da conta: ')
+            cliente = self.buscar_cliente(cpf)
+            contas = self.exibir_contas(cliente)
+            for conta in contas:
+                print(conta)
+            return contas
+        else:
+            contas = self.exibir_contas(cliente)
+            for conta in contas:
+                print(conta)
+            return contas
+    
+    def selecionar_conta(self, contas, index):
+        return contas[index]
         
+    def sacar_menu(self):
+        contas = self.listar_contas()
+        index = self.safe_input(int,f'Seleciona a conta para esta operação:')
+        conta = self.selecionar_conta(contas,index)
+        valor = self.safe_input(float,f'Insira o valor do Saque:')
+        self.sacar(conta,valor)
+    
     def exibir_menu(self):
         menu_keys = list(self.menu_dict.keys())
         while True:
