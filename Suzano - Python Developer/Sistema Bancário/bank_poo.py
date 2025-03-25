@@ -2,6 +2,7 @@ import random
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 
+### Classes de Objeto
 class PessoaFisica:
     def __init__(self, cpf: str, nome: str, data_nascimento: date):
         self._cpf: str = cpf
@@ -174,16 +175,51 @@ class ContaCorrente(Conta):
     def __str__(self):
         return f"Tipo: {self.__class__.__name__} | Agência: {self._agencia} | Numero: {self._numero:>5} | Saldo: {self._saldo:>5}"
 
+### Sistema
+class Sistema:
+    def __init__(self):
+        self._clientes = {}
+
+    def adicionar_cliente(self):
+        cliente = Cliente.criar_cliente()
+        cpf = cliente._pessoa._cpf
+        if cpf in self._clientes:
+            print("Erro: Cliente ja cadastrado com esse CPF")
+        else:
+            self._clientes[cpf] = cliente
+            print(f"Cliente {cliente._pessoa._nome} adicionado com sucesso!")  
+
+class Menu(Sistema):
+    def __init__(self):
+        super().__init__()
+        self.menu_dict = {
+            'Cadastrar Cliente': self.adicionar_cliente
+        }
+    
+    ## Exibe o Menu
+    def safe_input(self, data_type, prompt):
+        while True:
+            try:
+                return data_type(input(prompt))
+            except ValueError:
+                print(f"Entrada inválida! Digite um valor do tipo {data_type.__name__}.")
+        
+    def exibir_menu(self):
+        menu_keys = list(self.menu_dict.keys())
+        while True:
+            print(f"{'#'*47} Menu {'#'*47}")
+            
+            for i, elem in enumerate(menu_keys, 1):
+                print(f"{i}. {elem}")
+            
+            print(f"{'#'*100}") 
+            option = self.safe_input(int,f'Escolha uma das opções: ')
+
+            if option not in range(1,len(menu_keys) + 1):
+                print(f'Opção inválida')
+            else:
+                self.menu_dict[menu_keys[option - 1]]()
+     
 if __name__ == '__main__':
-    cliente1 = Cliente.criar_cliente()
-    cliente1.adicionar_conta(ContaCorrente.insert_conta())
-
-    for conta in cliente1._contas:
-        print(conta)
-
-    conta_corrente = cliente1._contas[0]
-    conta_corrente.realizar_transacao(Deposito(), 2000)  # Depósito
-    conta_corrente.realizar_transacao(Saque(), 400)    # Saque
-
-    for conta in cliente1._contas:
-        conta.exibir_extrato()
+    menu = Menu()
+    menu.exibir_menu()
