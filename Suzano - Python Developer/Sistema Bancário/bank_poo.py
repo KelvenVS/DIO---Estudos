@@ -1,4 +1,5 @@
 import random
+import os
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 
@@ -180,10 +181,10 @@ class ContaCorrente(Conta):
         if not self._extrato:
             print("Nenhuma transação foi realizada.")
         else:
-            print("\n=== Extrato ===")
+            print(f"{'='*47} Extrato {'='*47}")
             for transacao in self._extrato:
                 print(transacao)
-            print("================")
+            print(f"{'='*103}")
     
     def __str__(self):
         return f"Tipo: {self.__class__.__name__} | Agência: {self._agencia} | Numero: {self._numero:>5} | Saldo: {self._saldo:>5}"
@@ -193,6 +194,9 @@ class Sistema:
     def __init__(self):
         self._clientes = {}
 
+    def limpar_tela(self):
+        os.system('cls') if os.name == 'nt' else  os.system('clear')
+    
     def adicionar_cliente(self):
         cliente = Cliente.criar_cliente()
         cpf = cliente._pessoa._cpf
@@ -241,7 +245,7 @@ class Menu(Sistema):
     def __init__(self):
         super().__init__()
         self.menu_dict = {
-            'Cadastrar Cliente': self.adicionar_cliente,
+            'Cadastrar Cliente': self.adicionar_cliente_menu,
             'Cadastrar Conta': self.adicionar_conta_menu,
             'Exibir Clientes': self.exibir_clientes,
             'Buscar Cliente': self.buscar_cliente_menu,
@@ -259,8 +263,9 @@ class Menu(Sistema):
                 return data_type(input(prompt))
             except ValueError:
                 print(f"Entrada inválida! Digite um valor do tipo {data_type.__name__}.")
-                
+    
     def buscar_cliente_menu(self):
+        self.limpar_tela()
         cpf = self.safe_input(str, "Digite o CPF do cliente que deseja buscar: ")
         resultado = self.buscar_cliente(cpf)
         print(resultado)
@@ -280,6 +285,7 @@ class Menu(Sistema):
             return contas
         
     def adicionar_conta_menu(self):
+        self.limpar_tela()
         cpf = self.safe_input(str,f'Insira o CPF da conta: ')
         cliente = self.buscar_cliente(cpf)
         if cliente != None:
@@ -289,8 +295,13 @@ class Menu(Sistema):
         else:
             print("Cadastre um cliente primeiro!!!")
             self.adicionar_cliente()
+            
+    def adicionar_cliente_menu(self):
+        self.limpar_tela()
+        self.adicionar_cliente()
         
     def sacar_menu(self):
+        self.limpar_tela()
         contas = self.listar_contas_menu()
         num_conta = self.safe_input(str,f'Insira o N° da conta para operação:')
         conta = self.selecionar_conta(contas,None,num_conta)
@@ -298,6 +309,7 @@ class Menu(Sistema):
         self.sacar(conta,valor)
         
     def depositar_menu(self):
+        self.limpar_tela()
         contas = self.listar_contas_menu()
         num_conta = self.safe_input(str,f'Insira o N° da conta para operação:')
         conta = self.selecionar_conta(contas,None,num_conta)
@@ -305,6 +317,7 @@ class Menu(Sistema):
         self.depositar(conta,valor)
     
     def exibir_extrato_menu(self):
+        self.limpar_tela()
         contas = self.listar_contas_menu()
         num_conta = self.safe_input(str,f'Insira o N° da conta para operação:')
         conta = self.selecionar_conta(contas,None,num_conta)
