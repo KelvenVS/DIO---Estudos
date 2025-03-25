@@ -189,6 +189,18 @@ class Sistema:
             self._clientes[cpf] = cliente
             print(f"Cliente {cliente._pessoa._nome} adicionado com sucesso!")  
 
+    def adicionar_conta(self):
+        pass
+      
+    def selecionar_conta(self, contas, index=None,num_conta=None):
+        if index != None:
+            return contas[index]
+        else:
+            for conta in contas:
+                if num_conta == conta._numero:
+                    return conta
+            return None
+    
     def exibir_clientes(self):
         if not self._clientes:
             print("Nenhum Cliente cadastrado.")
@@ -197,14 +209,17 @@ class Sistema:
                 print(f"CPF: {cpf} | Cliente: {cliente._pessoa._nome}")
 
     def buscar_cliente(self, cpf):
-        return self._clientes.get(cpf, "Cliente não encontrado")
+        return self._clientes.get(cpf, None)
     
     def exibir_contas(self,cliente):
         return cliente._contas
     
     def sacar(self,conta,valor):
         conta.realizar_transacao(Saque(), valor)
-        
+    
+    def depositar(self,conta,valor):
+        conta.realizar_transacao(Deposito(), valor)
+    
     def exit_prog(self):
         print("Saindo do Sistema...")
         exit()
@@ -214,10 +229,12 @@ class Menu(Sistema):
         super().__init__()
         self.menu_dict = {
             'Cadastrar Cliente': self.adicionar_cliente,
+            'Cadastrar Conta': self.adicionar_conta_menu,
             'Exibir Clientes': self.exibir_clientes,
             'Buscar Cliente': self.buscar_cliente_menu,
-            'Listar Contas por Cliente': self.listar_contas,
+            'Listar Contas por Cliente': self.listar_contas_menu,
             'Sacar': self.sacar_menu,
+            'Depositar': self.depositar_menu,
             'Sair': self.exit_prog
         }
     
@@ -234,9 +251,9 @@ class Menu(Sistema):
         resultado = self.buscar_cliente(cpf)
         print(resultado)
     
-    def listar_contas(self,cliente = None):
+    def listar_contas_menu(self,cliente = None):
         if cliente == None:
-            cpf = self.safe_input(str,f'Insira o cpf da conta: ')
+            cpf = self.safe_input(str,f'Insira o CPF da conta: ')
             cliente = self.buscar_cliente(cpf)
             contas = self.exibir_contas(cliente)
             for conta in contas:
@@ -247,16 +264,31 @@ class Menu(Sistema):
             for conta in contas:
                 print(conta)
             return contas
-    
-    def selecionar_conta(self, contas, index):
-        return contas[index]
+        
+    def adicionar_conta_menu(self):
+        cpf = self.safe_input(str,f'Insira o CPF da conta: ')
+        cliente = self.buscar_cliente(cpf)
+        if cliente != None:
+            conta = ContaCorrente.insert_conta()
+            cliente._contas.append(conta)
+            print("Conta cadastrada com sucesso")
+        else:
+            print("Cadastre um cliente primeiro!!!")
+            self.adicionar_cliente()
         
     def sacar_menu(self):
-        contas = self.listar_contas()
-        index = self.safe_input(int,f'Seleciona a conta para esta operação:')
-        conta = self.selecionar_conta(contas,index)
+        contas = self.listar_contas_menu()
+        num_conta = self.safe_input(str,f'Insira o N° da conta para operação:')
+        conta = self.selecionar_conta(contas,None,num_conta)
         valor = self.safe_input(float,f'Insira o valor do Saque:')
         self.sacar(conta,valor)
+        
+    def depositar_menu(self):
+        contas = self.listar_contas_menu()
+        num_conta = self.safe_input(str,f'Insira o N° da conta para operação:')
+        conta = self.selecionar_conta(contas,None,num_conta)
+        valor = self.safe_input(float,f'Insira o valor do Depósito:')
+        self.depositar(conta,valor)
     
     def exibir_menu(self):
         menu_keys = list(self.menu_dict.keys())
